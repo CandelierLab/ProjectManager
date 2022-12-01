@@ -1,0 +1,21 @@
+=========================================================
+|                         SETUP                         |
+=========================================================
+
+1) Permanently add the project module in the PYTHONPATH. Add the following line at the end of ~/.bashrc:
+
+export PYTHONPATH=$PYTHONPATH:/home/raphael/Science/Tools/Projects
+
+2) Add an alias for launching the project module. In ~/.bash_aliases, add:
+
+alias projects='python3 /home/raphael/Science/Tools/Projects/project.py'
+
+3) Restart your terminal.
+
+4) Define the projects' folders in the LIST file, with one line per folder path
+
+=========================================================
+|                         USAGE                         |
+=========================================================
+
+
