@@ -3,7 +3,7 @@ import os
 # === DEFINITIONS ==========================================================
 
 # Project manager's root
-root = os.path.dirname(os.path.realpath(__file__))
+manager_root = os.path.dirname(os.path.realpath(__file__))
 
 # --- List of available projects -------------------------------------------
 
@@ -12,7 +12,7 @@ def get_available():
   Get the list of available projects
   '''
 
-  with open(root+'/LOCATIONS') as f:
+  with open(manager_root+'/LOCATIONS') as f:
     lines = f.read().splitlines()
 
   # Lists
@@ -70,7 +70,7 @@ def get_active(available_toolboxes=None, available_projects=None):
   tact = {}
   pact = {}
 
-  with open(root+'/ACTIVE') as f:
+  with open(manager_root+'/ACTIVE') as f:
     lines = f.read().splitlines()
 
   for line in lines:
@@ -135,7 +135,7 @@ class Selector:
     while True:
 
       # Clear terminal
-      os.system('clear')
+      # os.system('clear')
 
       # Message
       print(msg)
@@ -198,7 +198,7 @@ class Selector:
 
       # --- Update ACTIVE file
 
-      with open(root+'/ACTIVE', 'w') as f:
+      with open(manager_root+'/ACTIVE', 'w') as f:
         for p in self.active_toolboxes.values():
           f.write(p.strip() + '\n')
         for p in self.active_projects.values():
@@ -209,6 +209,52 @@ class Selector:
 
 # === MAIN ENTRY POINT =====================================================
 
+def check_source(source_file, active_projects):
+
+  from pathlib import PurePath
+
+  check = False
+  for p in active_projects.values():
+    if PurePath(source_file).is_relative_to(p):
+      check = True
+      break
+
+  if not check:
+    try:
+      raise Exception("\033[93mThe running script is not in the active project.\033[0m\nPlease run 'projects' in the terminal to select the correct project.")
+    except BaseException as exception:
+      error(f"{exception}")
+      sys.exit()
+
 if __name__ == '__main__':
 
+  # Direct call: start the selector
   Selector()
+
+else:
+
+  # Call as a module: check path
+  
+  import sys
+  from inspect import getouterframes
+  
+  from logging import error  
+
+  # Definitions
+  available_toolboxes, available_projects = get_available()
+  active_toolboxes, active_projects = get_active(available_toolboxes, available_projects)
+  source_file = getouterframes(sys._getframe(1), 1)[-1].filename
+
+  # --- Check if source file belongs to the active project
+
+  check_source(source_file, active_projects)
+
+  # --- Import active toolboxes and projects
+
+  # Active toolboxes
+  for p in active_toolboxes.values():
+    sys.path.append(p)
+
+  # Active projects
+  for p in active_projects.values():
+    sys.path.append(p + '/Programs/Python')
