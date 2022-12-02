@@ -258,3 +258,4 @@ else:
   # Active projects
   for p in active_projects.values():
     sys.path.append(p + '/Programs/Python')
+    root = p
