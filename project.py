@@ -56,14 +56,16 @@ def get_available():
 
   return tlist, plist
 
-available_toolboxes, available_projects = get_available()
-
 # --- Active toolboxes and projects ----------------------------------------
 
-def get_active():
+def get_active(available_toolboxes=None, available_projects=None):
   '''
   Get the list of active toolboxes and projects
   '''
+
+  # Incomplete input
+  if available_toolboxes is None or available_projects is None:
+    available_toolboxes, available_projects = get_available()
 
   tact = {}
   pact = {}
@@ -72,6 +74,9 @@ def get_active():
     lines = f.read().splitlines()
 
   for line in lines:
+
+    if line=='':
+      continue
 
     # Toolbox
     if line in available_toolboxes:
@@ -83,14 +88,13 @@ def get_active():
 
   return tact, pact
 
-active_toolboxes, active_projects = get_active()
-
-# with open(root+'/CURRENT') as f:
-#   lines = f.read().splitlines()
-
 # === PROJECT SELECTOR =====================================================
 
-class tcolor:
+class Selector:
+  '''
+  The toolbox/project selector class
+  '''
+
   HEADER = '\033[95m'
   BLUE = '\033[94m'
   CYAN = '\033[96m'
@@ -101,70 +105,110 @@ class tcolor:
   BOLD = '\033[1m'
   UNDERLINE = '\033[4m'
 
-if __name__ == '__main__':
-  '''
-  MAIN
-  '''
+  def display_item(self, p, k):
 
-  # --- Display
+    # Decide color based on activation state
+    if p in self.active_toolboxes.values():
+      color = self.GREEN + self.BOLD + self.UNDERLINE
+    elif p in self.active_projects.values():
+      color = self.BLUE + self.BOLD + self.UNDERLINE
+    else:
+      color = '' #tcolor.BLUE
 
-  msg = ''
+    p_ = os.path.basename(p) + self.ENDC + ' '*(15-len(os.path.basename(p)))
+    print('  {:s}: {:s} {:s}'.format(
+      '{:s}{:d}{:s}'.format(color, k, self.ENDC),
+      color + p_ + self.ENDC,
+      color + p + self.ENDC))
 
-  while True:
-
-    # Clear terminal
-    # os.system('clear')
-
-    # Message
-    print(msg)
-
-    k = 0
-
-    # Toolboxes
-    print('TOOLBOXES')
-
-    for p in available_toolboxes:
-      p_ = os.path.basename(p) + ' '*(15-len(os.path.basename(p)))
-      print('  {:s}: {:s} {:s}'.format(
-        '{:s}{:s}{:d}{:s}'.format(tcolor.CYAN, tcolor.BOLD,k, tcolor.ENDC),
-        tcolor.CYAN+tcolor.BOLD+p_+tcolor.ENDC,
-        p))
-      k+=1
-
-    # Projects
-    print('\nPROJECTS')
-
-    for p in available_projects:
-
-      # Decide color based on activation state
-      if p in active_projects.values():
-        color = tcolor.GREEN
-      else:
-        color = tcolor.BLUE
-
-      p_ = os.path.basename(p) + ' '*(15-len(os.path.basename(p)))
-      print('  {:s}: {:s} {:s}'.format(
-        '{:s}{:s}{:d}{:s}'.format(color, tcolor.BOLD,k, tcolor.ENDC),
-        color + tcolor.BOLD + p_ + tcolor.ENDC,
-        p))
-      k+=1
-
-    print('{:s}: {:s}'.format(
-      '{:s}{:s}{:s}{:s}'.format(tcolor.BLUE, tcolor.BOLD, 'Enter', tcolor.ENDC),
-      tcolor.BLUE+tcolor.BOLD+ 'Quit' +tcolor.ENDC))
-
-    # c = input('?> ')
-    c = ''
+    return k+1
     
-    match c:
-      case '':
-        break
-      case _:
-        if c.isdigit() and int(c)<len(available_projects):
-          i = int(c)
+  def __init__(self):
+
+    self.available_toolboxes, self.available_projects = get_available()
+    self.active_toolboxes, self.active_projects = get_active(self.available_toolboxes, self.available_projects)
+
+    # --- Display
+
+    msg = ''
+
+    while True:
+
+      # Clear terminal
+      os.system('clear')
+
+      # Message
+      print(msg)
+
+      # Index identifier
+      k = 0
+
+      # Toolboxes
+      print(self.CYAN + 'TOOLBOXES' + self.ENDC)
+
+      for p in self.available_toolboxes:
+        k = self.display_item(p, k)
+
+      # Projects
+      print('\n' + self.CYAN + 'PROJECTS' + self.ENDC)
+
+      for p in self.available_projects:
+        k = self.display_item(p, k)
+
+      print('Enter: Quit')
+
+      c = input('?> ')
+      
+      match c:
+        case '':
+          k = None
           break
-        else:
-          msg = "\n{:s}The input '{:s}' is unclear. Please try again.{:s}\n".format(tcolor.WARNING, c, tcolor.ENDC)
-    
-    # --- Current project info
-    # print(plist[i])
+        case _:
+          if c.isdigit() and int(c)<k:
+            k = int(c)
+            break
+          else:
+            msg = "\n{:s}The input '{:s}' is unclear. Please try again.{:s}\n".format(self.WARNING, c, self.ENDC)
+      
+    # --- Update active items
+
+    if k is not None:
+      
+      # --- Toolboxes
+
+      if k in self.active_toolboxes:
+
+        # Inactivate toolbox
+        self.active_toolboxes.pop(k)
+
+      elif k in self.active_projects:
+
+        # Inactivate project
+        self.active_projects.pop(k)
+
+      elif k<len(self.available_toolboxes):
+
+        # Activate toolbox
+        self.active_toolboxes[k] = self.available_toolboxes[k]
+
+      else:
+
+        # Activate project
+        self.active_projects = {k: self.available_projects[k-len(self.available_toolboxes)]}
+
+      # --- Update ACTIVE file
+
+      with open(root+'/ACTIVE', 'w') as f:
+        for p in self.active_toolboxes.values():
+          f.write(p.strip() + '\n')
+        for p in self.active_projects.values():
+          f.write(p.strip() + '\n')
+
+      # --- Update display
+      Selector()
+
+# === MAIN ENTRY POINT =====================================================
+
+if __name__ == '__main__':
+
+  Selector()
