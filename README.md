@@ -23,7 +23,7 @@ Projects and toolbox can then be activated (and deactivated) *via* a command-lin
 * The `Programs/Python` subfolder is automatically appended to `sys.path`. This way all the programs in the nested architecture have access to the project's packages and modules without having to manually append the root path.
 * The project's root path is accessible *via* `project.root`, which is useful for I/O operations relative to the project (*e.g.* save/load data files, create figures)
 
-> Note: Projects and toolboxes share the same architecture pattern. The only different is that **there can be only one active project** 
+> Note: Projects and toolboxes share the same architecture pattern. The only different is that **there can be only one active project** while 
 
 
 ## Setup
