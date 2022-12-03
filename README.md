@@ -58,4 +58,27 @@ There can be multiple locations (one per line) in each section. In these directo
 
 ## Usage
 
+### Activate toolboxes and projects *via* the CLI
 
+Type `projects` in the terminal to access the CLI:
+
+```
+TOOLBOXES
+  0: TBox            /home/user/Science/Toolboxes/TBox
+
+PROJECTS
+  1: Proj1           /home/user/Science/Projects/AE/Proj1
+  2: Proj2           /home/user/Science/Projects/AE/Proj2
+  3: Proj3           /home/user/Science/Projects/AE/Proj3
+Enter: Quit
+?>
+```
+You then have to enter the index (number) corresponding to the project or toolbox you want to activate or deactivate. When you are done, simply press `Return` to exit the CLI.
+
+### Import the project module in your programs
+
+```
+import project
+```
+
+In your programs, importing the `project` module gives you access to the current project path (`project.root`) and places all the packages and modules of the project automatically in your namespace.
