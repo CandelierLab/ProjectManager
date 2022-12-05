@@ -219,7 +219,7 @@ def check_source(source_file, active_projects):
       check = True
       break
 
-  if not check:
+  # if not check:
     try:
       raise Exception("\033[93mThe running script is not in the active project.\033[0m\nPlease run 'projects' in the terminal to select the correct project.")
     except BaseException as exception:
@@ -252,10 +252,16 @@ else:
   # --- Import active toolboxes and projects
 
   # Active toolboxes
-  for p in active_toolboxes.values():
-    sys.path.append(p)
+  for p in available_toolboxes:
+    if p in active_toolboxes.values():
+      sys.path.append(p)
+    elif p+'/Programs/Python' in sys.path:
+      sys.path.remove(p)
 
   # Active projects
-  for p in active_projects.values():
-    sys.path.append(p + '/Programs/Python')
-    root = p
+  for p in available_projects:
+    if p in active_projects.values():
+      sys.path.append(p + '/Programs/Python')      
+      root = p
+    elif p+'/Programs/Python' in sys.path:
+      sys.path.remove(p + '/Programs/Python')  
