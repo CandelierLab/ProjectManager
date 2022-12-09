@@ -234,7 +234,7 @@ if __name__ == '__main__':
 else:
 
   # Call as a module: check path
-  
+
   import sys
   from inspect import getouterframes
   
@@ -254,9 +254,9 @@ else:
   # Active toolboxes
   for p in available_toolboxes:
     if p in active_toolboxes.values():
-      sys.path.append(p)
+      sys.path.append(p + '/Programs/Python')
     elif p+'/Programs/Python' in sys.path:
-      sys.path.remove(p)
+      sys.path.remove(p + '/Programs/Python')
 
   # Active projects
   for p in available_projects:
@@ -264,4 +264,4 @@ else:
       sys.path.append(p + '/Programs/Python')      
       root = p
     elif p+'/Programs/Python' in sys.path:
-      sys.path.remove(p + '/Programs/Python')  
+      sys.path.remove(p + '/Programs/Python')
