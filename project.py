@@ -245,9 +245,11 @@ else:
   active_toolboxes, active_projects = get_active(available_toolboxes, available_projects)
   source_file = getouterframes(sys._getframe(1), 1)[-1].filename
 
-  # --- Check if source file belongs to the active project
+  # --- Check if ipython3 or if source file belongs to the active project
 
-  check_source(source_file, active_projects)
+  res = os.path.normpath(source_file).split(os.sep)
+  if res[-1] != 'ipython3':
+    check_source(source_file, active_projects)
 
   # --- Import active toolboxes and projects
 
