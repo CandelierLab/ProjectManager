@@ -213,6 +213,8 @@ def check_source(source_file, active_projects):
 
   from pathlib import PurePath
 
+  if PurePath(source_file).is_relative_to(manager_root): return
+
   check = False
   for p in active_projects.values():
     if PurePath(source_file).is_relative_to(p):
@@ -248,7 +250,7 @@ else:
   # --- Check if ipython3 or if source file belongs to the active project
 
   res = os.path.normpath(source_file).split(os.sep)
-  if res[-1] != 'ipython3':
+  if res[-1] != 'ipython3':    
     check_source(source_file, active_projects)
 
   # --- Import active toolboxes and projects
