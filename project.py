@@ -212,6 +212,7 @@ class Selector:
 def check_source(source_file, active_projects):
 
   from pathlib import PurePath
+  from logging import error 
 
   if PurePath(source_file).is_relative_to(manager_root): return
 
@@ -240,8 +241,6 @@ else:
   import sys
   from inspect import getouterframes
   
-  from logging import error  
-
   # Definitions
   available_toolboxes, available_projects = get_available()
   active_toolboxes, active_projects = get_active(available_toolboxes, available_projects)

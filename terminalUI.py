@@ -1,5 +1,5 @@
 import os
-from readchar import readkey, key
+import sys
 
 import project
 
@@ -42,11 +42,12 @@ class ts:
   bLIGHTGREY = '\033[47m'
   bDARKGREY = '\033[100m'
 
-
 # --------------------------------------------------------------------------
 def fix(s, l):
-  ''' SEt string size (for tabular-like display) '''
-  if len(s)>=l:
+  ''' Set string size (for tabular-like display) '''
+  if l is None:
+    return s
+  elif len(s)>=l:
     return s[:l]
   else:
     return s + ' '*(l-len(s))
@@ -55,73 +56,105 @@ def fix(s, l):
 class CurrentProject():
 
   def __init__(self):
+    
+    self.path = project.root
+    self.name = os.path.basename(os.path.normpath(project.root))
+    self.conda = os.environ['CONDA_DEFAULT_ENV'] if 'CONDA_DEFAULT_ENV' in os.environ else None
 
-    self.conda = 'Conda'
-    self.name = 'Project Name'
-    self.path = 'path/to/project'
+match sys.argv[1]:
 
-# === Initialization =======================================================
+  case 'disp':
 
-state = 'menu'
-P = CurrentProject()
+    # --- Initialization
 
-# === MAIN LOOP ============================================================
-
-while True:
-
-  os.system('clear')
-
-  # Get terminal size
-  tsz = os.get_terminal_size()
-
-  print(ts.bGREEN + f' ({P.conda}) ' + ts.end, end='')
-  print(ts.bBLUE + fix(' ' + P.name, tsz.columns-len(P.conda)-4) + ts.end)
-  print(ts.blue + ' ' + P.path + ts.end)
-  print(' '*(tsz.columns-30), end='')
-  print(ts.bBLUE + ' Return ' + ts.end + ts.lightblue + ' Quit' + ts.end + ' '*3, end='')
-  print(ts.bBLUE + ' + ' + ts.end + ts.lightblue + ' Parameters' + ts.end)
-  print('')
-
-  # Conda
-  print(ts.bDARKGREY + fix(' Conda', tsz.columns) + ts.end)
-  print(ts.bBLUE + ' a ' + ts.bLIGHTBLUE + fix(' Activate', 17) + ts.end + ' '*3, end='')
-  print(ts.bBLUE + ' r ' + ts.bLIGHTBLUE + fix(' Recreate environment from .yml', tsz.columns-26) + ts.end)
-  print('')
-
-  # Folders
-  print(ts.bDARKGREY + fix(' Folders', tsz.columns) + ts.end)
-  print(ts.bBLUE + ' p ' + ts.bLIGHTBLUE + fix(' Programs', 17) + ts.end + ' '*3, end='')
-  print(ts.bBLUE + ' f ' + ts.bLIGHTBLUE + fix(' Files', 17) + ts.end + ' '*3, end='')
-  print(ts.bBLUE + ' s ' + ts.bLIGHTBLUE + fix(' Spooler', 17) + ts.end)
-  print('')
-
-  # Git
-  print(ts.bDARKGREY + fix(' Git', tsz.columns) + ts.end)
-  print(ts.bBLUE + ' PageUp   ' + ts.bLIGHTBLUE + fix(' Push', 10) + ts.end + ' '*3, end='')
-  print(ts.bBLUE + ' ? ' + ts.bLIGHTBLUE + fix(' Status', 17) + ts.end + ' '*3, end='')
-  print(ts.bBLUE + ' c ' + ts.bLIGHTBLUE + fix(' Commit', 17) + ts.end)  
-  print(ts.bBLUE + ' PageDown ' + ts.bLIGHTBLUE + fix(' Pull', 10) + ts.end)
-  print('')
-
-  # Documentation
-  print(ts.bDARKGREY + fix(' Documentation', tsz.columns) + ts.end)
-  print(ts.bBLUE + ' h ' + ts.bLIGHTBLUE + fix(' Build html', 17) + ts.end)
-  print('')
-
-  break
-
-  match state:
-
-    case 'menu':
-      ''' Main menu '''
+    state = sys.argv[2]
       
-      k = readkey()
+    sec = lambda title: ts.bDARKGREY + fix(' ' + title, tsz.columns) + ts.end
+    sct = lambda s,d: ts.bBLUE + ' ' + s + ' ' + ts.end + ts.lightblue + ' ' + d + ts.end
+    spc = '  '
 
-      match k:
-        
-        case key.ENTER:
-          ''' Termination '''
-          break
+    # === Output generation ================================================
 
-        case _:
-          print(k)
+    match state:
+
+      case 'home':
+        ''' Home menu '''
+
+        os.system('clear')
+
+        # Get terminal size
+        tsz = os.get_terminal_size()
+
+        # --- Header
+
+        P = CurrentProject()
+
+        # Conda environment
+        if P.conda is None:
+          print(ts.bRED + fix(' ( ---- )', 10) + ts.end, end='')
+          clen = 10
+        else:
+          print(ts.bGREEN + f' ({P.conda}) ' + ts.end, end='')
+          clen = len(P.conda)+4
+
+        # Project name
+        print(ts.bBLUE + fix(' ' + P.name, tsz.columns-clen) + ts.end)
+
+        # Current path
+        cpath = os.getcwd()
+
+        inter = []
+        for i in range(min(len(cpath), len(P.path))):
+          if cpath[i]==P.path[i]:
+            inter += cpath[i]
+          else:
+            i -= 1
+            break
+
+        i += 1
+        print(ts.green +  ' ' + cpath[:i] + ts.end, end='')
+
+        if i>=len(P.path):
+          print(cpath[i:])
+        else:
+          print(ts.red +  cpath[i:] + ts.end)
+
+        # General options
+        print(' '*(tsz.columns-60), sct('Back', 'Select project'), spc, sct('Return', 'Quit'), spc, sct('+', 'Parameters'))
+        print('')
+
+        # Conda
+        print(sec('Conda'))
+        if P.conda is None:
+          print(sct('a', fix('Activate', 17)), '', end='')
+        else:
+          print(sct('d', fix('Deactivate', 17)), '', end='')
+
+        print(spc, sct('y', 'Export environment to .yml'))
+        print(' '*24, sct('z', 'Reset environment from .yml'))
+        print('')
+
+        # Folders
+        print(sec('Folders'))
+        print(sct('p', fix('Programs', 17)), spc, sct('f', fix('Files', 17)), spc, sct('s', fix('Spooler', 17)))
+        print('')
+
+        # Git
+        print(sec('Git'))
+        print(sct('PageUp  ', fix('Push', 10)), spc, sct('?', fix('Status', 17)), spc, sct('c', fix('Commit', 17)))
+        print(sct('PageDown', fix('Pull', 10)))
+        print('')
+
+        # Documentation
+        print(sec('Documentation'))
+        print(sct('h', 'Build html'))
+        print('')
+
+  case 'get':
+      
+    cmd = sys.argv[2]
+
+    match cmd:
+      case 'path_programs': 
+        P = CurrentProject()
+        print(P.path + '/Programs/Python')
