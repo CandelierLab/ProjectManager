@@ -67,61 +67,69 @@ match sys.argv[1]:
 
     # --- Initialization
 
+    os.system('clear')
+
+    # Get terminal size
+    tsz = os.get_terminal_size()
+
+    # Get state
     state = sys.argv[2]
       
     sec = lambda title: ts.bDARKGREY + fix(' ' + title, tsz.columns) + ts.end
     sct = lambda s,d: ts.bBLUE + ' ' + s + ' ' + ts.end + ts.lightblue + ' ' + d + ts.end
+    scts = lambda s,d: ts.bGREEN + ' ' + s + ' ' + ts.end + ts.lightgreen + ' ' + d + ts.end
     spc = '  '
 
     # === Output generation ================================================
+
+    # --- Header
+
+    P = CurrentProject()
+
+    # Conda environment
+    if P.conda is None:
+      print(ts.bRED + fix(' ( ---- )', 10) + ts.end, end='')
+      clen = 10
+    else:
+      print(ts.bGREEN + f' ({P.conda}) ' + ts.end, end='')
+      clen = len(P.conda)+4
+
+    # Project name
+    print(ts.bBLUE + fix(' ' + P.name, tsz.columns-clen) + ts.end)
+
+    # Current path
+    cpath = os.getcwd()
+
+    inter = []
+    for i in range(min(len(cpath), len(P.path))):
+      if cpath[i]==P.path[i]:
+        inter += cpath[i]
+      else:
+        i -= 1
+        break
+
+    i += 1
+    print(ts.green +  ' ' + cpath[:i] + ts.end, end='')
+
+    if i>=len(P.path):
+      print(cpath[i:])
+    else:
+      print(ts.red +  cpath[i:] + ts.end)
+
+    # General options
+    print('')
+    if state=='home':
+      print(' '*(tsz.columns-60), sct('Back', 'Select project'), end='')
+    else:
+      print(' '*(tsz.columns-50), sct('Back', 'Home'), end='')
+    
+    print(spc, sct('Return', 'Quit'), spc, sct('+', 'Parameters'))
+    print('')
 
     match state:
 
       case 'home':
         ''' Home menu '''
-
-        os.system('clear')
-
-        # Get terminal size
-        tsz = os.get_terminal_size()
-
-        # --- Header
-
-        P = CurrentProject()
-
-        # Conda environment
-        if P.conda is None:
-          print(ts.bRED + fix(' ( ---- )', 10) + ts.end, end='')
-          clen = 10
-        else:
-          print(ts.bGREEN + f' ({P.conda}) ' + ts.end, end='')
-          clen = len(P.conda)+4
-
-        # Project name
-        print(ts.bBLUE + fix(' ' + P.name, tsz.columns-clen) + ts.end)
-
-        # Current path
-        cpath = os.getcwd()
-
-        inter = []
-        for i in range(min(len(cpath), len(P.path))):
-          if cpath[i]==P.path[i]:
-            inter += cpath[i]
-          else:
-            i -= 1
-            break
-
-        i += 1
-        print(ts.green +  ' ' + cpath[:i] + ts.end, end='')
-
-        if i>=len(P.path):
-          print(cpath[i:])
-        else:
-          print(ts.red +  cpath[i:] + ts.end)
-
-        # General options
-        print(' '*(tsz.columns-60), sct('Back', 'Select project'), spc, sct('Return', 'Quit'), spc, sct('+', 'Parameters'))
-        print('')
 
         # Conda
         print(sec('Conda'))
@@ -150,6 +158,43 @@ match sys.argv[1]:
         print(sct('h', 'Build html'))
         print('')
 
+      case 'projects':
+        ''' Projects menu '''
+
+        available_toolboxes, available_projects = project.get_available()
+        active_toolboxes, active_projects = project.get_active(available_toolboxes, available_projects)
+        
+        # Toolboxes
+        print(sec('Toolboxes'))
+        
+        k = 1
+
+        for p in available_toolboxes:
+
+          if p in active_toolboxes.values():
+            print(scts('{:02d}'.format(k), os.path.basename(p)))
+          else:
+            print(sct('{:02d}'.format(k), os.path.basename(p)))
+
+          k += 1
+
+        print('')
+
+        # Project list
+        print(sec('Projects'))
+
+        for p in available_projects:
+
+          if p in active_projects.values():
+            print(scts('{:02d}'.format(k), os.path.basename(p)))
+          else:
+            print(sct('{:02d}'.format(k), os.path.basename(p)))
+
+          k += 1
+
+        print('')
+
+
   case 'get':
       
     cmd = sys.argv[2]
@@ -158,3 +203,11 @@ match sys.argv[1]:
       case 'path_programs': 
         P = CurrentProject()
         print(P.path + '/Programs/Python')
+
+      case 'path_spooler': 
+        P = CurrentProject()
+        print(P.path + '/Programs/Python/Spooler')
+
+      case 'path_files': 
+        P = CurrentProject()
+        print(P.path + '/Files')
