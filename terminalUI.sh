@@ -14,6 +14,13 @@ action=""
 while :
 do
 
+  # Check project selection
+  p=$(python3 "$SCRIPT_DIR"/terminalUI.py get isAnyProjectSelected)
+  if [ "$p" == "False" ]
+  then
+    state="projects"
+  fi
+  
   # === DISPLAY ============================================================
 
   clear
@@ -54,11 +61,12 @@ do
           p=$(python3 "$SCRIPT_DIR"/terminalUI.py get path_root)
           cd $p ;;
 
+
         "p") 
           # --- Folder: Programs
           p=$(python3 "$SCRIPT_DIR"/terminalUI.py get path_programs)
           cd $p ;;
-
+          
         "s") 
           # --- Folder: Spooler
           p=$(python3 "$SCRIPT_DIR"/terminalUI.py get path_spooler)
@@ -68,7 +76,7 @@ do
           # --- Folder: Files
           p=$(python3 "$SCRIPT_DIR"/terminalUI.py get path_files)
           cd $p ;;
-
+          
         "§")
           # --- Git push
           action="git push" ;;

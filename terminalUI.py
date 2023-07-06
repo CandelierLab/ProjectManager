@@ -57,17 +57,20 @@ class CurrentProject():
 
   def __init__(self):
     
-    self.path = project.root
-    self.name = os.path.basename(os.path.normpath(project.root))
-    self.conda = os.environ['CONDA_DEFAULT_ENV'] if 'CONDA_DEFAULT_ENV' in os.environ else None
+    if hasattr(project, "root"):
+      self.path = project.root
+      self.name = os.path.basename(os.path.normpath(project.root))
+      self.conda = os.environ['CONDA_DEFAULT_ENV'] if 'CONDA_DEFAULT_ENV' in os.environ else None
+    else:
+      self.path = None
+      self.name = None
+      self.conda = None
 
 match sys.argv[1]:
 
   case 'disp':
 
     # --- Initialization
-
-    os.system('clear')
 
     # Get terminal size
     tsz = os.get_terminal_size()
@@ -77,6 +80,7 @@ match sys.argv[1]:
       
     sec = lambda title: ts.bDARKGREY + fix(' ' + title, tsz.columns) + ts.end
     sct = lambda s,d: ts.bBLUE + ' ' + s + ' ' + ts.end + ts.lightblue + ' ' + d + ts.end
+    sctb = lambda s,d: ts.bDARKGREY + ' ' + s + ' ' + ts.end + ts.darkgrey + ' ' + d + ts.end
     scts = lambda s,d: ts.bGREEN + ' ' + s + ' ' + ts.end + ts.lightgreen + ' ' + d + ts.end
     spc = '  '
 
@@ -95,35 +99,44 @@ match sys.argv[1]:
       clen = len(P.conda)+4
 
     # Project name
-    print(ts.bBLUE + fix(' ' + P.name, tsz.columns-clen) + ts.end)
+    if P.name is None:
+      print(ts.bBLUE + fix(' --- No project selected ---', tsz.columns-clen) + ts.end)
+    else:
+      print(ts.bBLUE + fix(' ' + P.name, tsz.columns-clen) + ts.end)
 
     # Current path
     cpath = os.getcwd()
 
-    inter = []
-    for i in range(min(len(cpath), len(P.path))):
-      if cpath[i]==P.path[i]:
-        inter += cpath[i]
-      else:
-        i -= 1
-        break
-
-    i += 1
-    print(ts.green +  ' ' + cpath[:i] + ts.end, end='')
-
-    if i>=len(P.path):
-      print(cpath[i:])
+    if P.path is None:
+      print(' ' + cpath)
     else:
-      print(ts.red +  cpath[i:] + ts.end)
+
+      inter = []
+      for i in range(min(len(cpath), len(P.path))):
+        if cpath[i]==P.path[i]:
+          inter += cpath[i]
+        else:
+          i -= 1
+          break
+
+      i += 1
+      print(ts.green +  ' ' + cpath[:i] + ts.end, end='')
+
+      if i>=len(P.path):
+        print(cpath[i:])
+      else:
+        print(ts.red +  cpath[i:] + ts.end)
 
     # General options
     print('')
     if state=='home':
-      print(' '*(tsz.columns-60), sct('Back', 'Select project'), end='')
+      print(' '*(tsz.columns-42), sct('Back', 'Select project'), spc, sct('Return', 'Quit'))
     else:
-      print(' '*(tsz.columns-50), sct('Back', 'Home'), end='')
+      if P.path is None:
+        print(' '*(tsz.columns-17), sct('Return', 'Quit'))
+      else:
+        print(' '*(tsz.columns-32), sct('Back', 'Home'), spc, sct('Return', 'Quit'))
     
-    print(spc, sct('Return', 'Quit'), spc, sct('+', 'Parameters'))
     print('')
 
     match state:
@@ -144,7 +157,11 @@ match sys.argv[1]:
 
         # Folders
         print(sec('Folders'))
-        print(sct('r', fix('Root', 17)), spc, sct('p', fix('Programs', 17)), spc, sct('s', fix('Spooler', 17)))
+        print(sct('r', fix('Root', 17)), spc, sct('p', fix('Programs', 17)), end='')
+        if os.path.isdir(P.path + '/Programs/Python/Spooler'):
+          print(spc, sct('s', fix('Spooler', 17)))
+        else:
+          print(spc, sctb('s', fix('Spooler', 17)))
         print(sct('f', fix('Files', 17)))
         print('')
 
@@ -201,6 +218,10 @@ match sys.argv[1]:
     cmd = sys.argv[2]
 
     match cmd:
+
+      case 'isAnyProjectSelected':
+        P = CurrentProject()
+        print('False' if P.path is None else 'True')
 
       case 'path_root': 
         P = CurrentProject()
