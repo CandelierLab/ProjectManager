@@ -25,18 +25,23 @@ do
           state=$(echo 'projects') ;;
 
         "p") 
-          # --- Folder: Programs
-          p=$(python3 "$SCRIPT_DIR"/terminalUI.py get path_programs)
+          # --- Folder: Root
+          p=$(python3 "$SCRIPT_DIR"/terminalUI.py get path_root)
           cd $p ;;
 
-        "f") 
-          # --- Folder: Files
-          p=$(python3 "$SCRIPT_DIR"/terminalUI.py get path_files)
+        "p") 
+          # --- Folder: Programs
+          p=$(python3 "$SCRIPT_DIR"/terminalUI.py get path_programs)
           cd $p ;;
 
         "s") 
           # --- Folder: Spooler
           p=$(python3 "$SCRIPT_DIR"/terminalUI.py get path_spooler)
+          cd $p ;;
+
+        "f") 
+          # --- Folder: Files
+          p=$(python3 "$SCRIPT_DIR"/terminalUI.py get path_files)
           cd $p ;;
 
         "") 

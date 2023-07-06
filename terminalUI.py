@@ -144,7 +144,8 @@ match sys.argv[1]:
 
         # Folders
         print(sec('Folders'))
-        print(sct('p', fix('Programs', 17)), spc, sct('f', fix('Files', 17)), spc, sct('s', fix('Spooler', 17)))
+        print(sct('r', fix('Root', 17)), spc, sct('p', fix('Programs', 17)), spc, sct('s', fix('Spooler', 17)))
+        print(sct('f', fix('Files', 17)))
         print('')
 
         # Git
@@ -200,6 +201,11 @@ match sys.argv[1]:
     cmd = sys.argv[2]
 
     match cmd:
+
+      case 'path_root': 
+        P = CurrentProject()
+        print(P.path)
+
       case 'path_programs': 
         P = CurrentProject()
         print(P.path + '/Programs/Python')
