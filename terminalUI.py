@@ -150,8 +150,8 @@ match sys.argv[1]:
 
         # Git
         print(sec('Git'))
-        print(sct('PageUp  ', fix('Push', 10)), spc, sct('?', fix('Status', 17)), spc, sct('c', fix('Commit', 17)))
-        print(sct('PageDown', fix('Pull', 10)))
+        print(sct('§', fix('Push', 17)), spc, sct('?', fix('Status', 17)), spc, sct('c', fix('Commit', 17)))
+        print(sct('!', fix('Pull', 17)))
         print('')
 
         # Documentation
