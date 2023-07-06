@@ -61,10 +61,20 @@ class CurrentProject():
       self.path = project.root
       self.name = os.path.basename(os.path.normpath(project.root))
       self.conda = os.environ['CONDA_DEFAULT_ENV'] if 'CONDA_DEFAULT_ENV' in os.environ else None
+
+      self.programs = self.path + '/Programs/Python'
+      self.spooler = self.path + '/Programs/Python/Spooler'
+      self.files = self.path + '/Files'
+
     else:
       self.path = None
       self.name = None
       self.conda = None
+
+      self.programs = None
+      self.spooler = None
+      self.files = None
+
 
 match sys.argv[1]:
 
@@ -82,7 +92,7 @@ match sys.argv[1]:
     sct = lambda s,d: ts.bBLUE + ' ' + s + ' ' + ts.end + ts.lightblue + ' ' + d + ts.end
     sctb = lambda s,d: ts.bDARKGREY + ' ' + s + ' ' + ts.end + ts.darkgrey + ' ' + d + ts.end
     scts = lambda s,d: ts.bGREEN + ' ' + s + ' ' + ts.end + ts.lightgreen + ' ' + d + ts.end
-    spc = '  '
+    spc = ' '*3
 
     # === Output generation ================================================
 
@@ -144,34 +154,59 @@ match sys.argv[1]:
       case 'home':
         ''' Home menu '''
 
-        # Conda
+        # --- Conda --------------------------------------------------------
+
         print(sec('Conda'))
         if P.conda is None:
-          print(sct('a', fix('Activate', 17)), '', end='')
+          print(sct('a', fix('Activate', 17)), end='')
         else:
-          print(sct('d', fix('Deactivate', 17)), '', end='')
+          print(sct('d', fix('Deactivate', 17)), end='')
 
         print(spc, sct('y', 'Export environment to .yml'))
         print(' '*24, sct('z', 'Reset environment from .yml'))
         print('')
 
-        # Folders
+        # --- Folders ------------------------------------------------------
+
+        # Section title
         print(sec('Folders'))
-        print(sct('r', fix('Root', 17)), spc, sct('p', fix('Programs', 17)), end='')
-        if os.path.isdir(P.path + '/Programs/Python/Spooler'):
+
+        # Root
+        print(sct('r', fix('Root', 17)), end='')
+
+        # Programs
+        if os.path.isdir(P.programs):
+          print(spc, sct('p', fix('Programs', 17)), end='')
+        else:
+          print(spc, sctb('p', fix('Programs', 17)), end='')
+
+        # Spooler
+        if os.path.isdir(P.spooler):
           print(spc, sct('s', fix('Spooler', 17)))
         else:
           print(spc, sctb('s', fix('Spooler', 17)))
-        print(sct('f', fix('Files', 17)))
+
+        if os.path.isdir(P.files):
+          print(sct('f', fix('Files', 17)))
+        else:
+          print(sctb('f', fix('Files', 17)))
+
         print('')
 
-        # Git
+        # --- Git ----------------------------------------------------------
+
+        # Section title
         print(sec('Git'))
-        print(sct('§', fix('Push', 17)), spc, sct('?', fix('Status', 17)), spc, sct('c', fix('Commit', 17)))
+
+        # 
+        print(sct('§', fix('Push', 17)), end='')
+        print(spc, sct('?', fix('Status', 17)), end='')
+        print(spc, sct('c', fix('Commit', 17)))
+
         print(sct('!', fix('Pull', 17)))
         print('')
 
-        # Documentation
+        # --- Documentation ------------------------------------------------
         print(sec('Documentation'))
         print(sct('h', 'Build html'))
         print('')
@@ -229,12 +264,12 @@ match sys.argv[1]:
 
       case 'path_programs': 
         P = CurrentProject()
-        print(P.path + '/Programs/Python')
+        print(P.programs)
 
       case 'path_spooler': 
         P = CurrentProject()
-        print(P.path + '/Programs/Python/Spooler')
+        print(P.spooler)
 
       case 'path_files': 
         P = CurrentProject()
-        print(P.path + '/Files')
+        print(P.files)
