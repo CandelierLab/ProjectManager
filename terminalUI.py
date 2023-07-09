@@ -52,29 +52,10 @@ def fix(s, l):
   else:
     return s + ' '*(l-len(s))
 
-# --------------------------------------------------------------------------
-class CurrentProject():
+# === User interface =======================================================
 
-  def __init__(self):
-    
-    if hasattr(project, "root"):
-      self.path = project.root
-      self.name = os.path.basename(os.path.normpath(project.root))
-      self.conda = os.environ['CONDA_DEFAULT_ENV'] if 'CONDA_DEFAULT_ENV' in os.environ else None
-
-      self.programs = self.path + '/Programs/Python'
-      self.spooler = self.path + '/Programs/Python/Spooler'
-      self.files = self.path + '/Files'
-
-    else:
-      self.path = None
-      self.name = None
-      self.conda = None
-
-      self.programs = None
-      self.spooler = None
-      self.files = None
-
+L = project.ProjectsList()
+P = L.activeProject()
 
 match sys.argv[1]:
 
@@ -98,10 +79,8 @@ match sys.argv[1]:
 
     # --- Header
 
-    P = CurrentProject()
-
     # Conda environment
-    if P.conda is None:
+    if P is None or P.conda is None:
       print(ts.bRED + fix(' ( ---- )', 10) + ts.end, end='')
       clen = 10
     else:
@@ -109,7 +88,7 @@ match sys.argv[1]:
       clen = len(P.conda)+4
 
     # Project name
-    if P.name is None:
+    if P is None:
       print(ts.bBLUE + fix(' --- No project selected ---', tsz.columns-clen) + ts.end)
     else:
       print(ts.bBLUE + fix(' ' + P.name, tsz.columns-clen) + ts.end)
@@ -117,7 +96,7 @@ match sys.argv[1]:
     # Current path
     cpath = os.getcwd()
 
-    if P.path is None:
+    if P is None:
       print(' ' + cpath)
     else:
 
@@ -142,7 +121,7 @@ match sys.argv[1]:
     if state=='home':
       print(' '*(tsz.columns-42), sct('Back', 'Select project'), spc, sct('Return', 'Quit'))
     else:
-      if P.path is None:
+      if P is None:
         print(' '*(tsz.columns-17), sct('Return', 'Quit'))
       else:
         print(' '*(tsz.columns-32), sct('Back', 'Home'), spc, sct('Return', 'Quit'))
@@ -157,7 +136,7 @@ match sys.argv[1]:
         # --- Conda --------------------------------------------------------
 
         print(sec('Conda'))
-        if P.conda is None:
+        if P is None or P.conda is None:
           print(sct('a', fix('Activate', 17)), end='')
         else:
           print(sct('d', fix('Deactivate', 17)), end='')
@@ -175,18 +154,18 @@ match sys.argv[1]:
         print(sct('r', fix('Root', 17)), end='')
 
         # Programs
-        if os.path.isdir(P.programs):
+        if P is not None and os.path.isdir(P.programs):
           print(spc, sct('p', fix('Programs', 17)), end='')
         else:
           print(spc, sctb('p', fix('Programs', 17)), end='')
 
         # Spooler
-        if os.path.isdir(P.spooler):
+        if P is not None and os.path.isdir(P.spooler):
           print(spc, sct('s', fix('Spooler', 17)))
         else:
           print(spc, sctb('s', fix('Spooler', 17)))
 
-        if os.path.isdir(P.files):
+        if P is not None and os.path.isdir(P.files):
           print(sct('f', fix('Files', 17)))
         else:
           print(sctb('f', fix('Files', 17)))
@@ -214,39 +193,33 @@ match sys.argv[1]:
       case 'projects':
         ''' Projects menu '''
 
-        available_toolboxes, available_projects = project.get_available()
-        active_toolboxes, active_projects = project.get_active(available_toolboxes, available_projects)
-        
+        #  Define  shortcuts
+        L.setShortcuts()
+
         # Toolboxes
         print(sec('Toolboxes'))
-        
-        k = 1
 
-        for p in available_toolboxes:
-
-          if p in active_toolboxes.values():
-            print(scts('{:02d}'.format(k), os.path.basename(p)))
-          else:
-            print(sct('{:02d}'.format(k), os.path.basename(p)))
-
-          k += 1
+        for i in L.list:
+          if i.type=='toolbox':
+            if i.isactive:
+              print(scts(i.shortcut, i.name))
+            else:
+              print(sct(i.shortcut, i.name))
 
         print('')
 
         # Project list
         print(sec('Projects'))
 
-        for p in available_projects:
+        for i in L.list:
+          if i.type=='project':
+            if i.isactive:
+              print(scts(i.shortcut, i.name))
+            else:
+              print(sct(i.shortcut, i.name))
 
-          if p in active_projects.values():
-            print(scts('{:02d}'.format(k), os.path.basename(p)))
-          else:
-            print(sct('{:02d}'.format(k), os.path.basename(p)))
-
-          k += 1
 
         print('')
-
 
   case 'get':
       
@@ -255,21 +228,32 @@ match sys.argv[1]:
     match cmd:
 
       case 'isAnyProjectSelected':
-        P = CurrentProject()
-        print('False' if P.path is None else 'True')
+        print('False' if P is None else 'True')
 
       case 'path_root': 
-        P = CurrentProject()
         print(P.path)
 
-      case 'path_programs': 
-        P = CurrentProject()
+      case 'path_programs':
         print(P.programs)
 
-      case 'path_spooler': 
-        P = CurrentProject()
+      case 'path_spooler':
         print(P.spooler)
 
-      case 'path_files': 
-        P = CurrentProject()
+      case 'path_files':
         print(P.files)
+
+  case 'select':
+
+    shk = sys.argv[2]
+    # available_toolboxes, available_projects = project.get_available()
+    # active_toolboxes, active_projects = project.get_active(available_toolboxes, available_projects)
+
+    # # --- Get path
+
+    # path = None
+    # tsh, psh = shortcuts()
+    # if shk in tsh.keys(): path = tsh[shk][1]
+    # if shk in psh.keys(): path = psh[shk][1]
+
+    # # --- Set active or not
+    # print(active_toolboxes)

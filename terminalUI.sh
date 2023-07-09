@@ -5,11 +5,9 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # Default state
 state="home"
-# state="projects"
 
 # Default action
 action=""
-# action="echo \"ok !\""
 
 while :
 do
@@ -110,6 +108,10 @@ do
         "") 
           # --- Quit
           break ;;
+
+        *)
+          # --- Select project
+          python3 "$SCRIPT_DIR"/terminalUI.py select "$key" ;;
 
       esac ;;
 
