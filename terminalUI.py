@@ -55,7 +55,7 @@ def fix(s, l):
 # === User interface =======================================================
 
 L = project.ProjectsList()
-P = L.activeProject()
+P = L.getActiveProject()
 
 match sys.argv[1]:
 
@@ -154,18 +154,18 @@ match sys.argv[1]:
         print(sct('r', fix('Root', 17)), end='')
 
         # Programs
-        if P is not None and os.path.isdir(P.programs):
+        if P is not None and P.programs is not None and os.path.isdir(P.programs):
           print(spc, sct('p', fix('Programs', 17)), end='')
         else:
           print(spc, sctb('p', fix('Programs', 17)), end='')
 
         # Spooler
-        if P is not None and os.path.isdir(P.spooler):
+        if P is not None and P.spooler is not None and os.path.isdir(P.spooler):
           print(spc, sct('s', fix('Spooler', 17)))
         else:
           print(spc, sctb('s', fix('Spooler', 17)))
 
-        if P is not None and os.path.isdir(P.files):
+        if P is not None and P.files is not None and os.path.isdir(P.files):
           print(sct('f', fix('Files', 17)))
         else:
           print(sctb('f', fix('Files', 17)))
@@ -244,16 +244,16 @@ match sys.argv[1]:
 
   case 'select':
 
-    shk = sys.argv[2]
-    # available_toolboxes, available_projects = project.get_available()
-    # active_toolboxes, active_projects = project.get_active(available_toolboxes, available_projects)
+    # Get shortcut key
+    key = sys.argv[2]
 
-    # # --- Get path
+    #  Define  shortcuts
+    L.setShortcuts()
 
-    # path = None
-    # tsh, psh = shortcuts()
-    # if shk in tsh.keys(): path = tsh[shk][1]
-    # if shk in psh.keys(): path = psh[shk][1]
+    # --- Get project
 
-    # # --- Set active or not
-    # print(active_toolboxes)
+    for item in L.list:
+
+      if item.shortcut==key:
+        L.toggleActiveState(item)
+        break

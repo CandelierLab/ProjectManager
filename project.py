@@ -5,89 +5,6 @@ import os
 # Project manager's root
 manager_root = os.path.dirname(os.path.realpath(__file__))
 
-# # --- List of available projects -------------------------------------------
-
-# def get_available():
-#   '''
-#   Get the list of available projects
-#   '''
-
-#   with open(manager_root+'/LOCATIONS') as f:
-#     lines = f.read().splitlines()
-
-#   # Lists
-#   mode = None
-#   tlist = []
-#   plist = []
-
-#   for path in lines:
-    
-#     match path:
-#       case '': 
-#         continue
-#       case '## Toolboxes':
-#         mode = 'toolbox'
-#         continue
-#       case '## Projects':
-#         mode = 'project'
-#         continue
-
-#     if mode is not None:
-
-#       line = [path]
-
-#       while len(line):
-
-#         # Current path under investigation
-#         cur = line.pop(0)
-
-#         if 'Programs' in os.listdir(cur):
-#           if 'Python' in os.listdir(os.path.join(cur,'Programs')):
-#             match mode:
-#               case 'toolbox':
-#                 tlist.append(cur)
-#               case 'project':
-#                 plist.append(cur)
-
-#         else:
-#           for entry in os.scandir(cur):
-#             if entry.is_dir():
-#               line.append(os.path.join(cur,entry.name))
-
-#   return tlist, plist
-
-# # --- Active toolboxes and projects ----------------------------------------
-
-# def get_active(available_toolboxes=None, available_projects=None):
-#   '''
-#   Get the list of active toolboxes and projects
-#   '''
-
-#   # Incomplete input
-#   if available_toolboxes is None or available_projects is None:
-#     available_toolboxes, available_projects = get_available()
-
-#   tact = {}
-#   pact = {}
-
-#   with open(manager_root+'/ACTIVE') as f:
-#     lines = f.read().splitlines()
-
-#   for line in lines:
-
-#     if line=='':
-#       continue
-
-#     # Toolbox
-#     if line in available_toolboxes:
-#       tact[available_toolboxes.index(line)] = line
-
-#     # Project
-#     if line in available_projects:
-#       pact[available_projects.index(line) + len(available_toolboxes)] = line
-
-#   return tact, pact
-
 # === PROJECTS LIST ========================================================
 
 class ProjectItem():
@@ -210,13 +127,30 @@ class ProjectsList():
         error(f"{exception}")
         sys.exit()
 
-  def activeProject(self):
-    ''' Get the actibe project '''
+  def getActiveProject(self):
+    ''' Get the active project '''
 
     for i in self.list:
       if i.type=='project' and i.isactive: return i
 
     return None
+  
+  def toggleActiveState(self, p):
+    ''' Toggle the active state of a project/toolbox '''
+
+    with open(manager_root+'/ACTIVE', 'w') as f:
+
+      for item in self.list:
+
+        # Active state
+        if item==p:
+          item.isactive = not item.isactive
+        elif p.type=='project' and item.type=='project':
+          item.isactive = False
+
+        # Save to file
+        if item.isactive:
+          f.write(item.path + '\n')
   
   def setShortcuts(self):
 
