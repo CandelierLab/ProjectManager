@@ -230,6 +230,9 @@ match sys.argv[1]:
       case 'isAnyProjectSelected':
         print('False' if P is None else 'True')
 
+      case 'name':
+        print(P.name)
+
       case 'path_root': 
         print(P.path)
 
@@ -257,3 +260,11 @@ match sys.argv[1]:
       if item.shortcut==key:
         L.toggleActiveState(item)
         break
+    
+    P = L.getActiveProject()
+    
+    # Update conda
+    if P is None:
+      print('conda deactivate')
+    else:
+      print(f'conda deactivate; conda activate {P.name}')

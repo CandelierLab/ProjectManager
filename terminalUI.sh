@@ -54,11 +54,20 @@ do
           # --- Project selection
           state=$(echo 'projects') ;;
 
+        "a") 
+          # --- Conda: activate
+          conda activate $(python3 "$SCRIPT_DIR"/terminalUI.py get name)
+          ;;
+
+        "d") 
+          # --- Conda: deactivate
+          conda deactivate
+          ;;  
+
         "r") 
           # --- Folder: Root
           p=$(python3 "$SCRIPT_DIR"/terminalUI.py get path_root)
           cd $p ;;
-
 
         "p") 
           # --- Folder: Programs
@@ -111,7 +120,9 @@ do
 
         *)
           # --- Select project
-          python3 "$SCRIPT_DIR"/terminalUI.py select "$key" ;;
+          res=$(python3 "$SCRIPT_DIR"/terminalUI.py select "$key")
+          eval $res
+          ;;
 
       esac ;;
 
