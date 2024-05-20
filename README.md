@@ -41,7 +41,7 @@ export PYTHONPATH=$PYTHONPATH:/path/to/ProjectManager
 3) Add an alias for the project's selector CLI. In `~/.bash_aliases`, add:
 
 ```
-alias projects='python3 /path/to/ProjectManager/project.py'
+alias projects='. /path/to/ProjectManager/terminalUI.sh
 ```
 
 4) Restart your terminal.
@@ -55,7 +55,7 @@ alias projects='python3 /path/to/ProjectManager/project.py'
 /home/user/Science/Projects
 ```
 
-There can be multiple locations (one per line) in each section. In these directories, only the folders containing the `Peograms/Python` architecture are  recognized as valid toolboxes and projects. The search is recursive though, so the actual project location can be nested in a subfolder structure.
+There can be multiple locations (one per line) in each section. In these directories, only the folders containing the `Programs/Python` architecture are  recognized as valid toolboxes and projects. The search is recursive though, so the actual project location can be nested in a subfolder structure.
 
 ## Usage
 
