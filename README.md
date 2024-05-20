@@ -2,12 +2,13 @@
 
 ProjectManager is a Python3 module easing the management of a collection of scientific projects and toolboxes.
 
-Projects and toolboxes are simply directories with whatever architecture, the only constraint being that it must contain a `Programs/Python` folder/subfolder. For instance, a valid project could be:
+Projects and toolboxes are simply directories with whatever architecture, the only constraint being that it must contain a `Settings` and `Programs/Python` folder/subfolder. For instance, a valid project could be:
 
 ```
 project
-  ├── Programs
-  │   ├── Python      ☚ Mandatory structure stops here, the rest is optional
+  ├── Settings        ☚ Mandatory
+  ├── Programs        ☚ Mandatory
+  │   ├── Python      ☚ Mandatory. All the rest is optional
   │   │   └── ...
   │   ├── C++
   │   └── ...
