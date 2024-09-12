@@ -41,7 +41,7 @@ export PYTHONPATH=$PYTHONPATH:/path/to/ProjectManager
 3) Add an alias for the project's selector CLI. In `~/.bash_aliases`, add:
 
 ```
-alias projects='. /path/to/ProjectManager/terminalUI.sh
+alias projects='. /path/to/ProjectManager/terminalUI.sh'
 ```
 
 4) Restart your terminal.
